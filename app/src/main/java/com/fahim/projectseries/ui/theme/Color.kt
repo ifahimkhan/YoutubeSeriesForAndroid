@@ -1,4 +1,4 @@
-package com.fahim.calculator.ui.theme
+package com.fahim.projectseries.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

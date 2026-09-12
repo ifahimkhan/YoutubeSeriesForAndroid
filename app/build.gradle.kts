@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fahim.calculator"
+    namespace = "com.fahim.projectseries"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.fahim.calculator"
+        applicationId = "com.fahim.projectseries"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

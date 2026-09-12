@@ -1,4 +1,4 @@
-package com.fahim.calculator
+package com.fahim.projectseries
 
 import org.junit.Test
 
