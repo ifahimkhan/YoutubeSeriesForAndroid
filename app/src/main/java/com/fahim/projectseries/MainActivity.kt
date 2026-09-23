@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -47,36 +48,36 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProjectSeriesTheme {
-                //Loading Pages showing progress
-                val state = rememberWebViewState("https://www.google.com")
-                // load current page and navigate back and forward
+                var url by remember { mutableStateOf("https://google.com") }
+                val state = rememberWebViewState(url)
                 val navigator = rememberWebViewNavigator()
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                        .statusBarsPadding(),
                     topBar = {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 24.dp)
-                        ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp)) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp)
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                var urlText by remember { mutableStateOf("https://google.com/") }
                                 OutlinedTextField(
-                                    value = urlText, onValueChange = { urlText = it },
+                                    value = url,
+                                    onValueChange = { url = it },
                                     modifier = Modifier.weight(1f)
                                 )
-                                Spacer(modifier = Modifier.padding(8.dp))
-                                Button(onClick = { navigator.loadUrl(urlText) }) {
+                                Spacer(modifier = Modifier.padding(4.dp))
+                                Button(onClick = { navigator.loadUrl(url) }) {
                                     Text(text = "Go")
                                 }
                             }
-                            when (val loadingstate = state.loadingState) {
+
+                            when (val loadingState = state.loadingState) {
                                 is LoadingState.Loading -> {
-                                    LinearProgressIndicator(progress = loadingstate.progress)
+                                    LinearProgressIndicator(
+                                        progress = { loadingState.progress },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
                                 }
 
                                 else -> {}
@@ -84,50 +85,44 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     bottomBar = {
-                        BottomAppBar() {
+                        BottomAppBar {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                IconButton(onClick = {
-                                    navigator.navigateBack()
-                                }) {
-                                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                                IconButton(onClick = {navigator.navigateBack()},
+                                    enabled = navigator.canGoBack) {
+                                    Icon(Icons.Default.ArrowBack,contentDescription = null)
                                 }
-                                IconButton(onClick = {
-                                    navigator.navigateForward()
-                                }) {
-                                    Icon(Icons.Filled.ArrowForward, contentDescription = "Forward")
+                                IconButton(onClick = {navigator.navigateForward()},
+                                    enabled = navigator.canGoForward) {
+                                    Icon(Icons.Default.ArrowForward,contentDescription = null)
+                                }
+                                IconButton(onClick = {navigator.reload()}){
+                                    Icon(Icons.Default.Refresh,contentDescription = null)
+                                }
 
-                                }
-                                IconButton(onClick = {
-                                    navigator.reload()
-                                }) {
-                                    Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
-                                }
                             }
                         }
-                    }
-                ) { innerPadding ->
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)) {
+                    }) { paddingValues ->
+                    Column(modifier = Modifier.padding(paddingValues)) {
                         WebView(
-                            modifier = Modifier.fillMaxSize(),
                             state = state,
                             navigator = navigator,
                             onCreated = { webView ->
-                                webView.settings.javaScriptEnabled = true
-                                webView.settings.domStorageEnabled= true
-
+                                webView.settings.apply {
+                                    javaScriptEnabled = true
+                                    domStorageEnabled = true
+                                    javaScriptCanOpenWindowsAutomatically = true
+                                }
                             })
-
                     }
                 }
 
             }
+
         }
+
     }
 }
 
